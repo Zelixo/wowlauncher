@@ -14,6 +14,7 @@ import { rendererConfig } from './webpack.renderer.config';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    icon: './icon', // Electron Forge will pick .ico on Win and .icns on Mac
   },
   rebuildConfig: {},
   makers: [
