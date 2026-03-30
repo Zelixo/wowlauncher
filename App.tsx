@@ -84,12 +84,11 @@ const App: React.FC = () => {
   const handleToggleAddon = async () => {
     const nextState = !multibotEnabled;
     setMultibotEnabled(nextState);
-    setStatus(nextState ? 'Recruiting multibots...' : 'Dismissing the party...');
+    setStatus(nextState ? 'Addon enabled for next launch' : 'Addon will be removed next launch');
     try {
       await window.electronAPI.toggleAddon(nextState);
-      setStatus(nextState ? 'Your party is ready' : 'You are now alone');
     } catch (error) {
-      setStatus('Failed to modify your party');
+      setStatus('Failed to update addon preference');
       setMultibotEnabled(!nextState);
     }
   };

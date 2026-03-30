@@ -22,14 +22,38 @@ if (require('electron-squirrel-startup')) {
 app.disableHardwareAcceleration();
 
 let mainWindow: BrowserWindow | null = null;
-let currentConfig: { gameDir: string } = { gameDir: '' };
+let currentConfig: { gameDir: string; multibotDesired: boolean } = { gameDir: '', multibotDesired: false };
 
 const loadConfig = async () => {
   if (await fs.pathExists(CONFIG_FILE)) {
-    currentConfig = await fs.readJson(CONFIG_FILE);
+    currentConfig = { ...currentConfig, ...(await fs.readJson(CONFIG_FILE)) };
   } else {
-    currentConfig.gameDir = path.join(await getDefaultGamesDir(), 'ZelixoWoW');
+    currentConfig.gameDir = path.join(await getDefaultGamesDir(), 'Ikhan WoW');
+    // On first run, check if it happens to be there already
+    const multibotDir = path.join(currentConfig.gameDir, 'Interface', 'AddOns', 'MultiBot-master');
+    currentConfig.multibotDesired = await fs.pathExists(multibotDir);
     await fs.writeJson(CONFIG_FILE, currentConfig);
+  }
+};
+
+const applyAddonState = async () => {
+  const addonsDir = path.join(currentConfig.gameDir, 'Interface', 'AddOns');
+  const multibotDir = path.join(addonsDir, 'MultiBot-master');
+  const addonZip = path.join(app.getPath('userData'), 'multibot.zip');
+
+  if (currentConfig.multibotDesired) {
+    if (!(await fs.pathExists(multibotDir))) {
+      console.log('Downloading and applying Multibot addon...');
+      await fs.ensureDir(addonsDir);
+      await downloadFile(MULTIBOT_URL, addonZip);
+      await extractZip(addonZip, addonsDir);
+      await fs.remove(addonZip);
+    }
+  } else {
+    if (await fs.pathExists(multibotDir)) {
+      console.log('Removing Multibot addon...');
+      await fs.remove(multibotDir);
+    }
   }
 };
 
@@ -88,8 +112,8 @@ ipcMain.handle('select-directory', async () => {
   });
   if (!result.canceled && result.filePaths.length > 0) {
     currentConfig.gameDir = result.filePaths[0]; // Let users pick exactly where they want it
-    if (!currentConfig.gameDir.endsWith('ZelixoWoW') && !await fs.pathExists(path.join(currentConfig.gameDir, 'Wow.exe'))) {
-       currentConfig.gameDir = path.join(currentConfig.gameDir, 'ZelixoWoW');
+    if (!currentConfig.gameDir.endsWith('Ikhan WoW') && !await fs.pathExists(path.join(currentConfig.gameDir, 'Wow.exe'))) {
+       currentConfig.gameDir = path.join(currentConfig.gameDir, 'Ikhan WoW');
     }
     await fs.writeJson(CONFIG_FILE, currentConfig);
     return currentConfig.gameDir;
@@ -101,13 +125,11 @@ ipcMain.handle('get-game-status', async () => {
   const wowExe = path.join(currentConfig.gameDir, 'Wow.exe');
   const installed = await fs.pathExists(wowExe);
   
-  let multibotEnabled = false;
-  const addonDir = path.join(currentConfig.gameDir, 'Interface', 'AddOns', 'MultiBot-master');
-  if (installed) {
-    multibotEnabled = await fs.pathExists(addonDir);
-  }
-
-  return { installed, multibotEnabled, gameDir: currentConfig.gameDir };
+  return { 
+    installed, 
+    multibotEnabled: currentConfig.multibotDesired, 
+    gameDir: currentConfig.gameDir 
+  };
 });
 
 ipcMain.handle('install-game', async () => {
@@ -140,28 +162,19 @@ ipcMain.handle('install-game', async () => {
     await fs.remove(subfolderPath);
   }
 
+  await applyAddonState();
+
   return true;
 });
 
 ipcMain.handle('toggle-addon', async (_event, enabled: boolean) => {
-  const addonsDir = path.join(currentConfig.gameDir, 'Interface', 'AddOns');
-  const multibotDir = path.join(addonsDir, 'MultiBot-master');
-  const addonZip = path.join(app.getPath('userData'), 'multibot.zip');
-
-  if (enabled) {
-    await fs.ensureDir(addonsDir);
-    await downloadFile(MULTIBOT_URL, addonZip);
-    await extractZip(addonZip, addonsDir);
-    await fs.remove(addonZip);
-  } else {
-    if (await fs.pathExists(multibotDir)) {
-      await fs.remove(multibotDir);
-    }
-  }
+  currentConfig.multibotDesired = enabled;
+  await fs.writeJson(CONFIG_FILE, currentConfig);
   return true;
 });
 
 ipcMain.handle('launch-game', async () => {
+  await applyAddonState();
   await updateRealmlist(currentConfig.gameDir, TARGET_REALMLIST);
   
   const wowExe = path.join(currentConfig.gameDir, 'Wow.exe');
