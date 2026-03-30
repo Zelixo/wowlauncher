@@ -36,7 +36,7 @@ const loadConfig = async () => {
 const createWindow = (): void => {
   console.log('Creating window...');
   mainWindow = new BrowserWindow({
-    height: 700,
+    height: 800,
     width: 900,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -50,10 +50,6 @@ const createWindow = (): void => {
   });
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  
-  mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow?.webContents.openDevTools();
-  });
   
   console.log('Window loaded.');
 };
