@@ -45,8 +45,9 @@ const createWindow = (): void => {
     },
     frame: false,
     autoHideMenuBar: true,
-    backgroundColor: '#050505',
+    backgroundColor: '#000000',
     resizable: false,
+    useContentSize: true,
     show: false,
   });
 
