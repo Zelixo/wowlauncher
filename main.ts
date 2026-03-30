@@ -10,9 +10,36 @@ import axios from 'axios';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-const CLIENT_MAGNET = 'magnet:?xt=urn:btih:2ba2833baf733ce0a16040d43ed09491f2bf2ab2&dn=ChromieCraft_3.3.5a.zip&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&tr=http%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.uw0.xyz%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.zerobytes.xyz%3A1337%2Fannounce';
+const CLIENT_TORRENT_URL = 'https://btground.tk/chmi/ChromieCraft_3.3.5a.zip.torrent';
+const CLIENT_URL = 'https://btground.tk/chmi/ChromieCraft_3.3.5a.zip';
 const MULTIBOT_URL = 'https://github.com/Macx-Lio/MultiBot/archive/refs/heads/master.zip';
 const TARGET_REALMLIST = 'wow.zelixo.net';
+
+// Helper for direct downloads with progress
+const downloadFileWithProgress = async (url: string, dest: string, onProgress?: (data: any) => void) => {
+  const { data, headers } = await axios({ url, method: 'GET', responseType: 'stream' });
+  const totalLength = parseInt(headers['content-length'], 10);
+  let downloadedLength = 0;
+  const writer = fs.createWriteStream(dest);
+  
+  data.on('data', (chunk: Buffer) => {
+    downloadedLength += chunk.length;
+    if (onProgress) {
+      onProgress({
+        percent: Math.round((downloadedLength / totalLength) * 100),
+        downloaded: downloadedLength,
+        total: totalLength,
+        speed: 0 
+      });
+    }
+  });
+
+  data.pipe(writer);
+  return new Promise((resolve, reject) => {
+    writer.on('finish', resolve);
+    writer.on('error', reject);
+  });
+};
 
 // Helper for small downloads like the multibot addon
 const downloadFile = async (url: string, dest: string) => {
@@ -156,11 +183,20 @@ ipcMain.handle('install-game', async () => {
   }
 
   try {
-    const clientZipPath = await downloadTorrent(CLIENT_MAGNET, tempDownloadDir, (data) => {
-      if (mainWindow) {
-        mainWindow.webContents.send('download-progress', data);
-      }
-    });
+    let clientZipPath = '';
+    try {
+      if (mainWindow) mainWindow.webContents.send('status-update', 'Attempting P2P Summoning (Faster)...');
+      clientZipPath = await downloadTorrent(CLIENT_TORRENT_URL, tempDownloadDir, (data) => {
+        if (mainWindow) mainWindow.webContents.send('download-progress', data);
+      });
+    } catch (torrentError) {
+      console.warn('Torrent failed, falling back to direct download:', torrentError);
+      if (mainWindow) mainWindow.webContents.send('status-update', 'P2P failed. Switching to direct summoning (Slower)...');
+      clientZipPath = path.join(tempDownloadDir, 'client.zip');
+      await downloadFileWithProgress(CLIENT_URL, clientZipPath, (data) => {
+        if (mainWindow) mainWindow.webContents.send('download-progress', data);
+      });
+    }
 
     if (mainWindow) mainWindow.webContents.send('status-update', 'Extracting files (This may take a moment)...');
     await extractZip(clientZipPath, gameDir);

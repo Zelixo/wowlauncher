@@ -10,15 +10,15 @@ export interface DownloadProgress {
   speed: number; // bytes per second
 }
 
-export const downloadTorrent = async (magnet: string, destDir: string, onProgress?: (data: DownloadProgress) => void): Promise<string> => {
+export const downloadTorrent = async (torrentId: string, destDir: string, onProgress?: (data: DownloadProgress) => void): Promise<string> => {
   const client = new WebTorrent();
-  console.log('Starting WebTorrent 1.x client...');
+  console.log('Starting WebTorrent 1.x client with:', torrentId);
 
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
         client.destroy();
-        reject(new Error('Torrent metadata timed out. Is your internet blocking P2P/Torrents?'));
-    }, 30000); // 30 second timeout for metadata
+        reject(new Error('Torrent metadata timed out. Falling back to direct download.'));
+    }, 60000); // 60 second timeout for metadata
 
     client.on('error', (err: any) => {
         console.error('WebTorrent Client Error:', err);
@@ -27,7 +27,7 @@ export const downloadTorrent = async (magnet: string, destDir: string, onProgres
         reject(err);
     });
 
-    client.add(magnet, { path: destDir }, (torrent: any) => {
+    client.add(torrentId, { path: destDir }, (torrent: any) => {
       clearTimeout(timeout);
       console.log('Torrent metadata received. Files:', torrent.files.map((f: any) => f.name));
       // Find the main zip file in the torrent
