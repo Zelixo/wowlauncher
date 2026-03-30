@@ -10,12 +10,17 @@ export interface DownloadProgress {
 }
 
 export const downloadTorrent = async (magnet: string, destDir: string, onProgress?: (data: DownloadProgress) => void): Promise<string> => {
+  console.log('Starting WebTorrent client...');
   // Dynamic import to handle ESM module in CJS/Webpack environment
   const WebTorrentModule = await import('webtorrent');
+  // Handle both default export and namespace export depending on how Webpack bundled it
   const WebTorrent = (WebTorrentModule as any).default || WebTorrentModule;
-  const client = new WebTorrent();
   
-  console.log('Starting WebTorrent client...');
+  if (typeof WebTorrent !== 'function') {
+    throw new Error('Could not find WebTorrent constructor in module.');
+  }
+
+  const client = new WebTorrent();
 
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
@@ -30,11 +35,11 @@ export const downloadTorrent = async (magnet: string, destDir: string, onProgres
         reject(err);
     });
 
-    client.add(magnet, { path: destDir }, (torrent) => {
+    client.add(magnet, { path: destDir }, (torrent: any) => {
       clearTimeout(timeout);
-      console.log('Torrent metadata received. Files:', torrent.files.map(f => f.name));
+      console.log('Torrent metadata received. Files:', torrent.files.map((f: any) => f.name));
       // Find the main zip file in the torrent
-      const file = torrent.files.find(f => f.name.endsWith('.zip'));
+      const file = torrent.files.find((f: any) => f.name.endsWith('.zip'));
       if (!file) {
         console.error('No zip file found in torrent.');
         client.destroy();
