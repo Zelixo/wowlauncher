@@ -172,13 +172,16 @@ const App: React.FC = () => {
               </div>
             </label>
             
-            <a href="https://discord.gg/kv6hCjvMbp" target="_blank" className="option-card discord-btn">
+            <div 
+              className="option-card discord-btn" 
+              onClick={() => window.electronAPI.openExternal('https://discord.gg/kv6hCjvMbp')}
+            >
               <div className="icon">💬</div>
               <div className="option-info">
                   <span className="option-title">The War Room</span>
                   <span className="option-desc">Join our Discord community</span>
               </div>
-            </a>
+            </div>
         </div>
       </main>
 

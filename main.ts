@@ -204,5 +204,9 @@ ipcMain.handle('open-game-folder', async () => {
   }
 });
 
+ipcMain.handle('open-external', async (_event, url: string) => {
+  shell.openExternal(url);
+});
+
 ipcMain.on('close-app', () => app.quit());
 ipcMain.on('minimize-app', () => mainWindow?.minimize());

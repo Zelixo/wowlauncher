@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   selectDirectory: () => ipcRenderer.invoke('select-directory'),
   getConfig: () => ipcRenderer.invoke('get-config'),
   openGameFolder: () => ipcRenderer.invoke('open-game-folder'),
+  openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
   closeApp: () => ipcRenderer.send('close-app'),
   minimizeApp: () => ipcRenderer.send('minimize-app'),
   onDownloadProgress: (callback: (data: any) => void) => {
