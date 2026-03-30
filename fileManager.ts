@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
-import AdmZip from 'adm-zip';
 import * as path from 'path';
 const WebTorrent = require('webtorrent');
+const extract = require('extract-zip');
 
 export interface DownloadProgress {
   percent: number;
@@ -97,6 +97,7 @@ export const downloadTorrent = async (torrentId: string, destDir: string, onProg
 };
 
 export const extractZip = async (zipPath: string, extractTo: string) => {
-  const zip = new AdmZip(zipPath);
-  zip.extractAllTo(extractTo, true);
+  console.log(`Extracting large file: ${zipPath} to ${extractTo}`);
+  // Use extract-zip for large files (handles > 2GB)
+  await extract(zipPath, { dir: extractTo });
 };
