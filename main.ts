@@ -48,6 +48,7 @@ const createWindow = (): void => {
     backgroundColor: '#000000',
     resizable: false,
     useContentSize: true,
+    hasShadow: false,
     show: false,
   });
 

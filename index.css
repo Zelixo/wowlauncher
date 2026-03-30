@@ -6,15 +6,19 @@
   --deep-blue: #003a74;
   --gold: #e6cc80;
   --dark-bg: #000000;
-  --glass-bg: rgba(0, 0, 0, 0.7);
+  --glass-bg: rgba(0, 0, 0, 0.75);
   --border-color: rgba(0, 112, 221, 0.3);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
   font-family: 'Marcellus', serif;
   -webkit-font-smoothing: antialiased;
   background: #000;
@@ -22,27 +26,34 @@ html, body {
   overflow: hidden;
 }
 
+#root {
+  height: 100%;
+  width: 100%;
+}
+
 .app-container {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 50% 40%, #1a3a5a 0%, #000000 90%);
+  background: #000;
   background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.9)),
+    radial-gradient(circle at 50% 40%, rgba(26, 58, 90, 0.4) 0%, rgba(0, 0, 0, 1) 100%),
     url('./background.jpg');
   background-size: cover;
   background-position: center;
+  position: relative;
 }
 
 .title-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #000;
+  background: rgba(0, 0, 0, 0.85);
   padding: 10px 20px;
   -webkit-app-region: drag;
   flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .brand {
@@ -51,7 +62,6 @@ html, body {
     color: var(--primary-blue);
     letter-spacing: 3px;
     font-weight: bold;
-    opacity: 0.8;
 }
 
 .window-controls {
@@ -66,12 +76,11 @@ html, body {
   cursor: pointer;
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.1em;
-  transition: all 0.2s;
 }
 
 .control-btn:hover {
   color: #fff;
-  background: rgba(0, 112, 221, 0.2);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .control-btn.close:hover {
@@ -79,7 +88,7 @@ html, body {
 }
 
 header {
-  padding: 25px 20px 10px;
+  padding: 30px 20px 10px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -106,7 +115,6 @@ header h1 {
   text-transform: uppercase;
   letter-spacing: 5px;
   margin-top: 6px;
-  opacity: 0.9;
 }
 
 main {
@@ -114,20 +122,17 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 30px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  padding: 10px 40px;
+  width: 100%;
 }
 
 .dir-picker {
   width: 100%;
-  max-width: 620px;
   margin-bottom: 20px;
   background: var(--glass-bg);
   padding: 18px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  backdrop-filter: blur(5px);
+  border-radius: 4px;
 }
 
 .dir-header {
@@ -139,7 +144,7 @@ main {
 
 .dir-label {
   font-size: 0.7em;
-  color: #ccc;
+  color: #aaa;
   text-transform: uppercase;
   letter-spacing: 3px;
 }
@@ -149,14 +154,6 @@ main {
     border: none;
     cursor: pointer;
     font-size: 1.2em;
-    padding: 0;
-    transition: transform 0.2s;
-    opacity: 0.7;
-}
-
-.icon-btn:hover {
-    transform: scale(1.15);
-    opacity: 1;
 }
 
 .dir-path-container {
@@ -166,10 +163,10 @@ main {
 
 .dir-path {
   flex-grow: 1;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   border: 1px solid var(--border-color);
   padding: 10px 15px;
-  border-radius: 4px;
+  border-radius: 3px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.8em;
   color: var(--ice-blue);
@@ -183,23 +180,16 @@ main {
   border: 1px solid var(--primary-blue);
   color: #fff;
   padding: 0 20px;
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
   font-size: 0.75em;
   text-transform: uppercase;
   letter-spacing: 2px;
   font-weight: bold;
-  transition: all 0.2s;
-}
-
-.browse-btn:hover {
-  background: var(--primary-blue);
-  box-shadow: 0 0 15px rgba(0, 112, 221, 0.4);
 }
 
 .status-box {
   width: 100%;
-  max-width: 620px;
   text-align: center;
   margin-bottom: 25px;
 }
@@ -211,21 +201,19 @@ main {
     text-transform: uppercase;
     letter-spacing: 3px;
     margin-bottom: 15px;
-    text-shadow: 0 0 12px rgba(230, 204, 128, 0.4);
 }
 
 .download-info {
     width: 100%;
     background: rgba(0, 0, 0, 0.4);
     padding: 12px;
-    border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
 }
 
 .progress-bar {
   width: 100%;
   height: 6px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
   margin-bottom: 10px;
   border-radius: 3px;
   overflow: hidden;
@@ -234,8 +222,6 @@ main {
 .progress-fill {
   height: 100%;
   background: linear-gradient(to right, #0070dd, #00c0ff);
-  transition: width 0.3s ease;
-  box-shadow: 0 0 20px rgba(0, 112, 221, 0.9);
 }
 
 .progress-details {
@@ -243,7 +229,7 @@ main {
     justify-content: space-between;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.65em;
-    color: #999;
+    color: #888;
 }
 
 .primary-actions {
@@ -261,12 +247,9 @@ main {
   border: 1px solid var(--primary-blue);
   border-radius: 4px;
   color: #fff;
-  font-weight: normal;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   text-transform: uppercase;
   letter-spacing: 5px;
-  box-shadow: 0 0 25px rgba(0, 112, 221, 0.3);
 }
 
 .action-button.play {
@@ -274,28 +257,6 @@ main {
   border: 1px solid #ff8000;
   color: #000;
   font-weight: bold;
-  box-shadow: 0 0 30px rgba(255, 128, 0, 0.4);
-}
-
-.action-button:hover:not(:disabled) {
-  filter: brightness(1.25);
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0, 112, 221, 0.5);
-}
-
-.action-button.play:hover:not(:disabled) {
-    box-shadow: 0 10px 35px rgba(255, 128, 0, 0.6);
-}
-
-.action-button:active:not(:disabled) {
-    transform: translateY(-1px);
-}
-
-.action-button:disabled {
-  background: #1a1a1a;
-  border-color: #333;
-  color: #555;
-  cursor: wait;
 }
 
 .options-grid {
@@ -303,7 +264,6 @@ main {
     grid-template-columns: 1fr 1fr;
     gap: 15px;
     width: 100%;
-    max-width: 620px;
 }
 
 .option-card {
@@ -314,46 +274,7 @@ main {
     align-items: center;
     gap: 15px;
     cursor: pointer;
-    transition: all 0.25s;
-    text-decoration: none;
-    border-radius: 6px;
-    backdrop-filter: blur(5px);
-}
-
-.option-card:hover {
-    background: rgba(0, 112, 221, 0.15);
-    border-color: var(--primary-blue);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.option-card input {
-    display: none;
-}
-
-.checkbox-ui {
-    width: 22px;
-    height: 22px;
-    border: 1px solid rgba(0, 112, 221, 0.6);
-    flex-shrink: 0;
-    position: relative;
-    border-radius: 3px;
-}
-
-.option-card input:checked + .checkbox-ui {
-    background: var(--primary-blue);
-    border-color: #00c0ff;
-    box-shadow: 0 0 12px rgba(0, 112, 221, 0.6);
-}
-
-.option-card input:checked + .checkbox-ui::after {
-    content: '✓';
-    display: block;
-    color: #fff;
-    font-weight: bold;
-    text-align: center;
-    line-height: 20px;
-    font-size: 14px;
+    border-radius: 4px;
 }
 
 .option-info {
@@ -369,14 +290,9 @@ main {
 
 .option-desc {
     font-size: 0.65em;
-    color: #888;
+    color: #777;
     font-family: 'JetBrains Mono', monospace;
     margin-top: 4px;
-    letter-spacing: 0.5px;
-}
-
-.icon {
-    font-size: 1.4em;
 }
 
 footer {
