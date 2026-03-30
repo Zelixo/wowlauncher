@@ -193,8 +193,12 @@ ipcMain.handle('toggle-addon', async (_event, enabled: boolean) => {
 });
 
 ipcMain.handle('launch-game', async () => {
-  await applyAddonState();
-  await updateRealmlist(currentConfig.gameDir, TARGET_REALMLIST);
+  try {
+    await applyAddonState();
+    await updateRealmlist(currentConfig.gameDir, TARGET_REALMLIST);
+  } catch (error) {
+    console.error('Error during pre-launch tasks:', error);
+  }
   
   const wowExe = path.join(currentConfig.gameDir, 'Wow.exe');
   

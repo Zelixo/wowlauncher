@@ -17,39 +17,18 @@ export const updateRealmlist = async (gamePath: string, targetRealmlist: string)
   }
 
   if (!realmlistFile) {
-    throw new Error('Realmlist file not found.');
+    console.error('Realmlist file not found in any standard locations.');
+    return; // We don't want to crash if it's missing, just log it
   }
 
-  const content = await fs.readFile(realmlistFile, 'utf8');
-  const lines = content.split('\n');
-  const newLines: string[] = [];
-  let foundTarget = false;
-
-  for (let line of lines) {
-    line = line.trim();
-    if (!line) continue;
-
-    if (line.toLowerCase().includes('set realmlist')) {
-      if (line.toLowerCase().includes(targetRealmlist.toLowerCase())) {
-        // Uncomment it if it's commented
-        newLines.push(`set realmlist ${targetRealmlist}`);
-        foundTarget = true;
-      } else {
-        // Comment out other realmlists
-        if (!line.startsWith('#')) {
-          newLines.push(`# ${line}`);
-        } else {
-          newLines.push(line);
-        }
-      }
-    } else {
-      newLines.push(line);
-    }
+  console.log(`Updating realmlist at: ${realmlistFile} to ${targetRealmlist}`);
+  
+  // Simple and aggressive: Just overwrite the file with the single correct line.
+  // This ensures no old realmlists or weird comments interfere.
+  try {
+    await fs.writeFile(realmlistFile, `set realmlist ${targetRealmlist}\n`);
+    console.log('Realmlist updated successfully.');
+  } catch (err) {
+    console.error('Failed to write realmlist file:', err);
   }
-
-  if (!foundTarget) {
-    newLines.push(`set realmlist ${targetRealmlist}`);
-  }
-
-  await fs.writeFile(realmlistFile, newLines.join('\n'));
 };
