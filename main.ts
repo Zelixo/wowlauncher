@@ -19,6 +19,8 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
+app.disableHardwareAcceleration();
+
 let mainWindow: BrowserWindow | null = null;
 let currentConfig: { gameDir: string } = { gameDir: '' };
 
@@ -32,6 +34,7 @@ const loadConfig = async () => {
 };
 
 const createWindow = (): void => {
+  console.log('Creating window...');
   mainWindow = new BrowserWindow({
     height: 700,
     width: 900,
@@ -40,17 +43,29 @@ const createWindow = (): void => {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    frame: false,
-    backgroundColor: '#000000',
-    resizable: false, // Keep it consistent
+    frame: true,
+    backgroundColor: '#1a1a1a',
+    resizable: true,
   });
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow?.webContents.openDevTools();
+  });
+  
+  console.log('Window loaded.');
 };
 
 app.on('ready', async () => {
-  await loadConfig();
-  createWindow();
+  console.log('App ready. Loading config...');
+  try {
+    await loadConfig();
+    console.log('Config loaded:', currentConfig);
+    createWindow();
+  } catch (error) {
+    console.error('Error during startup:', error);
+  }
 });
 
 app.on('window-all-closed', () => {

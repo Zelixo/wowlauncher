@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { DownloadData } from './types';
+
+interface DownloadData {
+  percent: number;
+  downloaded: number;
+  total: number;
+  speed: number;
+}
 
 const App: React.FC = () => {
   const [installed, setInstalled] = useState(false);
   const [multibotEnabled, setMultibotEnabled] = useState(false);
   const [installing, setInstalling] = useState(false);
   const [downloadData, setDownloadData] = useState<DownloadData | null>(null);
-  const [status, setStatus] = useState('Checking game status...');
+  const [status, setStatus] = useState('Chilling in the lobby...');
   const [gameDir, setGameDir] = useState('');
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     checkStatus();
@@ -22,14 +29,18 @@ const App: React.FC = () => {
   }, []);
 
   const checkStatus = async () => {
-    const status = await window.electronAPI.getGameStatus();
-    setInstalled(status.installed);
-    setMultibotEnabled(status.multibotEnabled);
-    setGameDir(status.gameDir);
-    if (status.installed) {
-      setStatus('Ready to Play');
-    } else {
-      setStatus('Game not installed');
+    try {
+      const status = await window.electronAPI.getGameStatus();
+      setInstalled(status.installed);
+      setMultibotEnabled(status.multibotEnabled);
+      setGameDir(status.gameDir);
+      if (status.installed) {
+        setStatus('Ready for Adventure');
+      } else {
+        setStatus('Client not found in the frozen wastes');
+      }
+    } catch (e) {
+      setStatus('Failed to communicate with the frozen core');
     }
   };
 
@@ -37,11 +48,7 @@ const App: React.FC = () => {
     const newDir = await window.electronAPI.selectDirectory();
     if (newDir) {
       setGameDir(newDir);
-      const status = await window.electronAPI.getGameStatus();
-      setInstalled(status.installed);
-      setMultibotEnabled(status.multibotEnabled);
-      if (status.installed) setStatus('Ready to Play');
-      else setStatus('Game not installed');
+      await checkStatus();
     }
   };
 
@@ -56,36 +63,34 @@ const App: React.FC = () => {
 
   const handleInstall = async () => {
     setInstalling(true);
-    setStatus('Downloading client...');
+    setStatus('Summoning client files...');
     try {
       await window.electronAPI.installGame();
-      setStatus('Game installed successfully');
+      setStatus('The ritual is complete!');
       setInstalled(true);
       setDownloadData(null);
     } catch (error) {
-      console.error(error);
-      setStatus('Installation failed. Please check your internet or disk space.');
+      setStatus('The summoning failed! Check your connection.');
     } finally {
       setInstalling(false);
     }
   };
 
   const handlePlay = async () => {
-    setStatus('Launching game...');
+    setStatus('Crossing the threshold...');
     await window.electronAPI.launchGame();
-    setTimeout(() => setStatus('Ready to Play'), 5000);
+    setTimeout(() => setStatus('Ready for Adventure'), 5000);
   };
 
   const handleToggleAddon = async () => {
     const nextState = !multibotEnabled;
     setMultibotEnabled(nextState);
-    setStatus(nextState ? 'Installing Multibot...' : 'Removing Multibot...');
+    setStatus(nextState ? 'Recruiting multibots...' : 'Dismissing the party...');
     try {
       await window.electronAPI.toggleAddon(nextState);
-      setStatus(nextState ? 'Multibot installed' : 'Multibot removed');
+      setStatus(nextState ? 'Your party is ready' : 'You are now alone');
     } catch (error) {
-      console.error(error);
-      setStatus('Addon modification failed');
+      setStatus('Failed to modify your party');
       setMultibotEnabled(!nextState);
     }
   };
@@ -95,7 +100,7 @@ const App: React.FC = () => {
   return (
     <div className="app-container">
       <div className="title-bar">
-        <div className="brand">IKHAN WOW LAUNCHER</div>
+        <div className="brand">REALM OF IKHAN</div>
         <div className="window-controls">
           <button className="control-btn" onClick={() => window.electronAPI.minimizeApp()}>_</button>
           <button className="control-btn close" onClick={() => window.electronAPI.closeApp()}>×</button>
@@ -103,19 +108,32 @@ const App: React.FC = () => {
       </div>
 
       <header>
-        <h1>IKHAN WOW</h1>
+        {!logoError ? (
+          <img 
+            src="https://wow.zelixo.net/assets/logo-BV6M-tIn.png" 
+            alt="Ikhan Logo" 
+            className="main-logo" 
+            onError={() => {
+                console.log('Logo failed to load, switching to text fallback');
+                setLogoError(true);
+            }}
+          />
+        ) : (
+          <div className="main-logo-fallback">IKHAN</div>
+        )}
+        <h1>REALM OF IKHAN</h1>
         <p className="subtitle">Wrath of the Lich King 3.3.5a</p>
       </header>
 
       <main>
         <div className="dir-picker">
           <div className="dir-header">
-             <span className="dir-label">Game Directory</span>
+             <span className="dir-label">Game Stronghold</span>
              {installed && <button className="icon-btn" onClick={openFolder} title="Open Folder">📁</button>}
           </div>
           <div className="dir-path-container">
             <div className="dir-path" title={gameDir}>{gameDir}</div>
-            <button className="browse-btn" onClick={handleSelectDir} disabled={installing}>Change</button>
+            <button className="browse-btn" onClick={handleSelectDir} disabled={installing}>Relocate</button>
           </div>
         </div>
 
@@ -141,7 +159,7 @@ const App: React.FC = () => {
               onClick={handleInstall}
               disabled={installing}
             >
-              {installing ? 'Installing...' : 'Download & Setup Game'}
+              {installing ? 'Summoning...' : 'Begin the Journey'}
             </button>
           ) : (
             <button 
@@ -149,7 +167,7 @@ const App: React.FC = () => {
               onClick={handlePlay}
               disabled={installing}
             >
-              Enter World
+              Enter the Fray
             </button>
           )}
         </div>
@@ -159,23 +177,23 @@ const App: React.FC = () => {
               <input type="checkbox" checked={multibotEnabled} readOnly />
               <div className="checkbox-ui"></div>
               <div className="option-info">
-                  <span className="option-title">Multibot Addon</span>
-                  <span className="option-desc">Automated party members support</span>
+                  <span className="option-title">Multibot Reinforcements</span>
+                  <span className="option-desc">Automated party member support</span>
               </div>
             </label>
             
-            <div className="option-card help" title="The launcher ensures your realmlist is always correct.">
-              <div className="icon">🛡️</div>
+            <a href="https://discord.gg/kv6hCjvMbp" target="_blank" className="option-card discord-btn">
+              <div className="icon">💬</div>
               <div className="option-info">
-                  <span className="option-title">Realmlist Guard</span>
-                  <span className="option-desc">Auto-configured for wow.zelixo.net</span>
+                  <span className="option-title">The War Room</span>
+                  <span className="option-desc">Join our Discord community</span>
               </div>
-            </div>
+            </a>
         </div>
       </main>
 
       <footer>
-        <p>FOR HELP VISIT DISCORD.ZELIXO.NET &bull; {process.platform === 'linux' ? 'LINUX (WINE)' : 'WINDOWS'}</p>
+        <p>STAY COOL OUT THERE, IT'S SNOW JOKE! &bull; VERSION 1.0.42</p>
       </footer>
     </div>
   );

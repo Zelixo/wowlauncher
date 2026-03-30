@@ -5,8 +5,10 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
+console.log('Renderer starting...');
 const rootElement = document.getElementById('root');
 if (rootElement) {
+  console.log('Root element found, rendering App...');
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <React.StrictMode>
