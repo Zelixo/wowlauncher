@@ -19,6 +19,7 @@ export interface ElectronAPI {
   selectDirectory: () => Promise<string | null>;
   getConfig: () => Promise<{ gameDir: string }>;
   openGameFolder: () => Promise<void>;
+  openExternal: (url: string) => Promise<void>;
   closeApp: () => void;
   minimizeApp: () => void;
   onDownloadProgress: (callback: (data: DownloadData) => void) => void;
