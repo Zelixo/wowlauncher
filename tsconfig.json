@@ -9,12 +9,15 @@
     "sourceMap": true,
     "baseUrl": ".",
     "outDir": "dist",
+    "rootDir": ".",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "jsx": "react",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "*": ["node_modules/*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["**/*"],
+  "exclude": ["node_modules", "dist", ".webpack", "out", "src"]
 }

@@ -18,9 +18,7 @@ const config: ForgeConfig = {
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({}),
-    new MakerZIP({}, ['darwin']),
-    new MakerRpm({}),
-    new MakerDeb({}),
+    new MakerZIP({}, ['darwin', 'win32', 'linux']),
   ],
   plugins: [
     new AutoUnpackNativesPlugin({}),
@@ -30,11 +28,11 @@ const config: ForgeConfig = {
         config: rendererConfig,
         entryPoints: [
           {
-            html: './src/index.html',
-            js: './src/renderer.tsx',
+            html: './index.html',
+            js: './renderer.tsx',
             name: 'main_window',
             preload: {
-              js: './src/preload.ts',
+              js: './preload.ts',
             },
           },
         ],

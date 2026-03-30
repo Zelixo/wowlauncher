@@ -1,3 +1,5 @@
+/// <reference path="index.css.d.ts" />
+/// <reference path="types.d.ts" />
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
