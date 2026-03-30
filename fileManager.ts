@@ -10,56 +10,61 @@ export interface DownloadProgress {
   speed: number; // bytes per second
 }
 
+// A list of high-quality public trackers to help discovery
+const EXTRA_TRACKERS = [
+    'udp://tracker.leechers-paradise.org:6969/announce',
+    'udp://tracker.coppersurfer.tk:6969/announce',
+    'udp://tracker.opentrackr.org:1337/announce',
+    'udp://explodie.org:6969/announce',
+    'udp://9.rarbg.com:2810/announce',
+    'wss://tracker.btorrent.xyz',
+    'wss://tracker.openwebtorrent.com',
+];
+
 export const downloadTorrent = async (torrentId: string, destDir: string, onProgress?: (data: DownloadProgress) => void): Promise<string> => {
-  const client = new WebTorrent();
-  console.log('Starting WebTorrent 1.x client with:', torrentId);
+  const client = new WebTorrent({
+    dht: true,
+    tracker: true,
+    lsd: true,
+  });
+  
+  console.log('Starting Aggressive WebTorrent 1.x client...');
 
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
-        client.destroy();
-        reject(new Error('Torrent metadata timed out. Falling back to direct download.'));
-    }, 60000); // 60 second timeout for metadata
+        if (client.torrents.length === 0 || !client.torrents[0].ready) {
+            client.destroy();
+            reject(new Error('Failed to fetch torrent metadata. The swarm might be empty or trackers are blocked.'));
+        }
+    }, 60000); // 1 minute to find peers/metadata
 
     client.on('error', (err: any) => {
-        console.error('WebTorrent Client Error:', err);
-        clearTimeout(timeout);
+        console.error('WebTorrent Client Global Error:', err);
         client.destroy();
         reject(err);
     });
 
-    client.add(torrentId, { path: destDir }, (torrent: any) => {
+    client.add(torrentId, { 
+        path: destDir,
+        announce: EXTRA_TRACKERS 
+    }, (torrent: any) => {
       clearTimeout(timeout);
-      console.log('Torrent metadata received. Files:', torrent.files.map((f: any) => f.name));
+      console.log('Successfully connected to swarm.');
+      console.log('Files in torrent:', torrent.files.map((f: any) => f.name));
       
-      // Find the main zip file in the torrent
       const file = torrent.files.find((f: any) => f.name.endsWith('.zip'));
       if (!file) {
-        console.error('No zip file found in torrent.');
         client.destroy();
         return reject(new Error('No zip file found in torrent.'));
       }
-      console.log('Found target file:', file.name);
-
-      let lastDownloaded = 0;
-      let stalledCount = 0;
 
       const statusInterval = setInterval(() => {
-        console.log(`Torrent Status: ${Math.round(torrent.progress * 100)}% | Peers: ${torrent.numPeers} | Speed: ${(torrent.downloadSpeed / 1024 / 1024).toFixed(2)} MB/s`);
+        const progress = Math.round(torrent.progress * 100);
+        const peers = torrent.numPeers;
+        const speed = (torrent.downloadSpeed / 1024 / 1024).toFixed(2);
         
-        if (torrent.downloaded === lastDownloaded) {
-          stalledCount++;
-        } else {
-          stalledCount = 0;
-        }
-        lastDownloaded = torrent.downloaded;
-
-        if (stalledCount >= 4) { // 20 seconds with no data
-          console.warn('Torrent stalled for 20s, triggering fallback...');
-          clearInterval(statusInterval);
-          client.destroy();
-          reject(new Error('Torrent stalled. Switching to direct download.'));
-        }
-      }, 5000);
+        console.log(`[Torrent] Progress: ${progress}% | Peers: ${peers} | Speed: ${speed} MB/s`);
+      }, 3000);
 
       torrent.on('download', () => {
         if (onProgress) {
@@ -73,11 +78,19 @@ export const downloadTorrent = async (torrentId: string, destDir: string, onProg
       });
 
       torrent.on('done', () => {
-        console.log('Torrent download complete.');
+        console.log('Torrent download complete!');
         clearInterval(statusInterval);
         const filePath = path.join(destDir, file.path);
-        client.destroy();
+        // Important: We don't destroy immediately to let others leech if needed for a moment
+        setTimeout(() => client.destroy(), 5000); 
         resolve(filePath);
+      });
+
+      torrent.on('error', (err: any) => {
+        console.error('Torrent-specific error:', err);
+        clearInterval(statusInterval);
+        client.destroy();
+        reject(err);
       });
     });
   });
