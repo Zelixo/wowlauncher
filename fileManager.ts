@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import AdmZip from 'adm-zip';
-import WebTorrent from 'webtorrent';
+import WebTorrent = require('webtorrent');
 import * as path from 'path';
 
 export interface DownloadProgress {

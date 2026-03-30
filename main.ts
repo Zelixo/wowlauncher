@@ -178,7 +178,7 @@ ipcMain.handle('install-game', async () => {
 
     await applyAddonState();
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Download or Extraction Error:', error);
     if (mainWindow) mainWindow.webContents.send('status-update', `Error: ${error.message}`);
     throw error;
