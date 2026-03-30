@@ -14,7 +14,6 @@ const App: React.FC = () => {
   const [downloadData, setDownloadData] = useState<DownloadData | null>(null);
   const [status, setStatus] = useState('Chilling in the lobby...');
   const [gameDir, setGameDir] = useState('');
-  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     checkStatus();
@@ -108,19 +107,11 @@ const App: React.FC = () => {
       </div>
 
       <header>
-        {!logoError ? (
-          <img 
-            src="https://wow.zelixo.net/assets/logo-BV6M-tIn.png" 
-            alt="Ikhan Logo" 
-            className="main-logo" 
-            onError={() => {
-                console.log('Logo failed to load, switching to text fallback');
-                setLogoError(true);
-            }}
-          />
-        ) : (
-          <div className="main-logo-fallback">IKHAN</div>
-        )}
+        <img 
+          src={require('./logo.png')} 
+          alt="Ikhan Logo" 
+          className="main-logo" 
+        />
         <h1>REALM OF IKHAN</h1>
         <p className="subtitle">Wrath of the Lich King 3.3.5a</p>
       </header>
