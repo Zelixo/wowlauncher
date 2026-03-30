@@ -155,29 +155,34 @@ ipcMain.handle('install-game', async () => {
     mainWindow.webContents.send('download-progress', { percent: 0, downloaded: 0, total: 0, speed: 0 });
   }
 
-  const clientZipPath = await downloadTorrent(CLIENT_MAGNET, tempDownloadDir, (data) => {
-    if (mainWindow) {
-      mainWindow.webContents.send('download-progress', data);
-    }
-  });
+  try {
+    const clientZipPath = await downloadTorrent(CLIENT_MAGNET, tempDownloadDir, (data) => {
+      if (mainWindow) {
+        mainWindow.webContents.send('download-progress', data);
+      }
+    });
 
-  if (mainWindow) mainWindow.webContents.send('status-update', 'Extracting files (This may take a moment)...');
-  await extractZip(clientZipPath, gameDir);
-  await fs.remove(clientZipPath);
-  
-  const subfolders = await fs.readdir(gameDir);
-  if (subfolders.length === 1 && (await fs.stat(path.join(gameDir, subfolders[0]))).isDirectory()) {
-    const subfolderPath = path.join(gameDir, subfolders[0]);
-    const files = await fs.readdir(subfolderPath);
-    for (const file of files) {
-      await fs.move(path.join(subfolderPath, file), path.join(gameDir, file));
+    if (mainWindow) mainWindow.webContents.send('status-update', 'Extracting files (This may take a moment)...');
+    await extractZip(clientZipPath, gameDir);
+    await fs.remove(clientZipPath);
+    
+    const subfolders = await fs.readdir(gameDir);
+    if (subfolders.length === 1 && (await fs.stat(path.join(gameDir, subfolders[0]))).isDirectory()) {
+      const subfolderPath = path.join(gameDir, subfolders[0]);
+      const files = await fs.readdir(subfolderPath);
+      for (const file of files) {
+        await fs.move(path.join(subfolderPath, file), path.join(gameDir, file));
+      }
+      await fs.remove(subfolderPath);
     }
-    await fs.remove(subfolderPath);
+
+    await applyAddonState();
+    return true;
+  } catch (error) {
+    console.error('Download or Extraction Error:', error);
+    if (mainWindow) mainWindow.webContents.send('status-update', `Error: ${error.message}`);
+    throw error;
   }
-
-  await applyAddonState();
-
-  return true;
 });
 
 ipcMain.handle('toggle-addon', async (_event, enabled: boolean) => {
