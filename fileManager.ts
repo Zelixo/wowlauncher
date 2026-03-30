@@ -1,6 +1,6 @@
-import axios from 'axios';
 import * as fs from 'fs-extra';
 import AdmZip from 'adm-zip';
+import WebTorrent from 'webtorrent';
 import * as path from 'path';
 
 export interface DownloadProgress {
@@ -10,44 +10,40 @@ export interface DownloadProgress {
   speed: number; // bytes per second
 }
 
-export const downloadFile = async (url: string, dest: string, onProgress?: (data: DownloadProgress) => void) => {
-  const { data, headers } = await axios({
-    url,
-    method: 'GET',
-    responseType: 'stream',
-  });
-
-  const totalLength = parseInt(headers['content-length'], 10);
-  let downloadedLength = 0;
-  let lastTime = Date.now();
-  let lastDownloaded = 0;
-
-  const writer = fs.createWriteStream(dest);
-  data.on('data', (chunk: Buffer) => {
-    downloadedLength += chunk.length;
-    const currentTime = Date.now();
-    const timeDiff = (currentTime - lastTime) / 1000;
-    
-    if (timeDiff >= 0.5) { // Update every 500ms
-      const speed = (downloadedLength - lastDownloaded) / timeDiff;
-      if (onProgress) {
-        onProgress({
-          percent: Math.round((downloadedLength / totalLength) * 100),
-          downloaded: downloadedLength,
-          total: totalLength,
-          speed: speed
-        });
-      }
-      lastTime = currentTime;
-      lastDownloaded = downloadedLength;
-    }
-  });
-
-  data.pipe(writer);
+export const downloadTorrent = async (magnet: string, destDir: string, onProgress?: (data: DownloadProgress) => void): Promise<string> => {
+  const client = new WebTorrent();
 
   return new Promise((resolve, reject) => {
-    writer.on('finish', resolve);
-    writer.on('error', reject);
+    client.add(magnet, { path: destDir }, (torrent) => {
+      // Find the main zip file in the torrent
+      const file = torrent.files.find(f => f.name.endsWith('.zip'));
+      if (!file) {
+        client.destroy();
+        return reject(new Error('No zip file found in torrent.'));
+      }
+
+      torrent.on('download', () => {
+        if (onProgress) {
+          onProgress({
+            percent: Math.round(torrent.progress * 100),
+            downloaded: torrent.downloaded,
+            total: torrent.length,
+            speed: torrent.downloadSpeed
+          });
+        }
+      });
+
+      torrent.on('done', () => {
+        const filePath = path.join(destDir, file.path);
+        client.destroy();
+        resolve(filePath);
+      });
+
+      client.on('error', (err) => {
+        client.destroy();
+        reject(err);
+      });
+    });
   });
 };
 

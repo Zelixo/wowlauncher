@@ -3,15 +3,27 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import { spawn } from 'child_process';
 import { updateRealmlist } from './realmlistManager';
-import { downloadFile, extractZip } from './fileManager';
+import { downloadTorrent, extractZip } from './fileManager';
 import { getDefaultGamesDir } from './SteamManager';
+import axios from 'axios';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-const CLIENT_URL = 'https://btground.tk/chmi/ChromieCraft_3.3.5a.zip';
+const CLIENT_MAGNET = 'magnet:?xt=urn:btih:2ba2833baf733ce0a16040d43ed09491f2bf2ab2&dn=ChromieCraft_3.3.5a.zip&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&tr=http%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.uw0.xyz%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.zerobytes.xyz%3A1337%2Fannounce';
 const MULTIBOT_URL = 'https://github.com/Macx-Lio/MultiBot/archive/refs/heads/master.zip';
 const TARGET_REALMLIST = 'wow.zelixo.net';
+
+// Helper for small downloads like the multibot addon
+const downloadFile = async (url: string, dest: string) => {
+  const { data } = await axios({ url, method: 'GET', responseType: 'stream' });
+  const writer = fs.createWriteStream(dest);
+  data.pipe(writer);
+  return new Promise((resolve, reject) => {
+    writer.on('finish', resolve);
+    writer.on('error', reject);
+  });
+};
 
 const CONFIG_FILE = path.join(app.getPath('userData'), 'config.json');
 
@@ -137,21 +149,21 @@ ipcMain.handle('install-game', async () => {
   const gameDir = currentConfig.gameDir;
   await fs.ensureDir(gameDir);
   
-  const clientZip = path.join(app.getPath('userData'), 'client.zip');
+  const tempDownloadDir = app.getPath('userData');
 
   if (mainWindow) {
     mainWindow.webContents.send('download-progress', { percent: 0, downloaded: 0, total: 0, speed: 0 });
   }
 
-  await downloadFile(CLIENT_URL, clientZip, (data) => {
+  const clientZipPath = await downloadTorrent(CLIENT_MAGNET, tempDownloadDir, (data) => {
     if (mainWindow) {
       mainWindow.webContents.send('download-progress', data);
     }
   });
 
   if (mainWindow) mainWindow.webContents.send('status-update', 'Extracting files (This may take a moment)...');
-  await extractZip(clientZip, gameDir);
-  await fs.remove(clientZip);
+  await extractZip(clientZipPath, gameDir);
+  await fs.remove(clientZipPath);
   
   const subfolders = await fs.readdir(gameDir);
   if (subfolders.length === 1 && (await fs.stat(path.join(gameDir, subfolders[0]))).isDirectory()) {
