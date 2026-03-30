@@ -30,6 +30,7 @@ export const downloadTorrent = async (torrentId: string, destDir: string, onProg
     client.add(torrentId, { path: destDir }, (torrent: any) => {
       clearTimeout(timeout);
       console.log('Torrent metadata received. Files:', torrent.files.map((f: any) => f.name));
+      
       // Find the main zip file in the torrent
       const file = torrent.files.find((f: any) => f.name.endsWith('.zip'));
       if (!file) {
@@ -38,6 +39,27 @@ export const downloadTorrent = async (torrentId: string, destDir: string, onProg
         return reject(new Error('No zip file found in torrent.'));
       }
       console.log('Found target file:', file.name);
+
+      let lastDownloaded = 0;
+      let stalledCount = 0;
+
+      const statusInterval = setInterval(() => {
+        console.log(`Torrent Status: ${Math.round(torrent.progress * 100)}% | Peers: ${torrent.numPeers} | Speed: ${(torrent.downloadSpeed / 1024 / 1024).toFixed(2)} MB/s`);
+        
+        if (torrent.downloaded === lastDownloaded) {
+          stalledCount++;
+        } else {
+          stalledCount = 0;
+        }
+        lastDownloaded = torrent.downloaded;
+
+        if (stalledCount >= 4) { // 20 seconds with no data
+          console.warn('Torrent stalled for 20s, triggering fallback...');
+          clearInterval(statusInterval);
+          client.destroy();
+          reject(new Error('Torrent stalled. Switching to direct download.'));
+        }
+      }, 5000);
 
       torrent.on('download', () => {
         if (onProgress) {
@@ -51,6 +73,8 @@ export const downloadTorrent = async (torrentId: string, destDir: string, onProg
       });
 
       torrent.on('done', () => {
+        console.log('Torrent download complete.');
+        clearInterval(statusInterval);
         const filePath = path.join(destDir, file.path);
         client.destroy();
         resolve(filePath);
