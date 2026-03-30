@@ -43,7 +43,8 @@ const createWindow = (): void => {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    frame: true,
+    frame: false,
+    autoHideMenuBar: true,
     backgroundColor: '#1a1a1a',
     resizable: true,
   });

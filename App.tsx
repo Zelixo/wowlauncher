@@ -119,12 +119,12 @@ const App: React.FC = () => {
       <main>
         <div className="dir-picker">
           <div className="dir-header">
-             <span className="dir-label">Game Stronghold</span>
+             <span className="dir-label">Installation Directory</span>
              {installed && <button className="icon-btn" onClick={openFolder} title="Open Folder">📁</button>}
           </div>
           <div className="dir-path-container">
             <div className="dir-path" title={gameDir}>{gameDir}</div>
-            <button className="browse-btn" onClick={handleSelectDir} disabled={installing}>Relocate</button>
+            <button className="browse-btn" onClick={handleSelectDir} disabled={installing}>Change Folder</button>
           </div>
         </div>
 
@@ -150,7 +150,7 @@ const App: React.FC = () => {
               onClick={handleInstall}
               disabled={installing}
             >
-              {installing ? 'Summoning...' : 'Begin the Journey'}
+              {installing ? 'Installing...' : 'Install Game'}
             </button>
           ) : (
             <button 
@@ -158,7 +158,7 @@ const App: React.FC = () => {
               onClick={handlePlay}
               disabled={installing}
             >
-              Enter the Fray
+              Play Now
             </button>
           )}
         </div>
@@ -168,7 +168,7 @@ const App: React.FC = () => {
               <input type="checkbox" checked={multibotEnabled} readOnly />
               <div className="checkbox-ui"></div>
               <div className="option-info">
-                  <span className="option-title">Multibot Reinforcements</span>
+                  <span className="option-title">MultiBot Addon</span>
                   <span className="option-desc">Automated party member support</span>
               </div>
             </label>
