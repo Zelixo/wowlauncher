@@ -1,6 +1,5 @@
 import * as fs from 'fs-extra';
 import AdmZip from 'adm-zip';
-import WebTorrent = require('webtorrent');
 import * as path from 'path';
 
 export interface DownloadProgress {
@@ -11,7 +10,11 @@ export interface DownloadProgress {
 }
 
 export const downloadTorrent = async (magnet: string, destDir: string, onProgress?: (data: DownloadProgress) => void): Promise<string> => {
+  // Dynamic import to handle ESM module in CJS/Webpack environment
+  const WebTorrentModule = await import('webtorrent');
+  const WebTorrent = (WebTorrentModule as any).default || WebTorrentModule;
   const client = new WebTorrent();
+  
   console.log('Starting WebTorrent client...');
 
   return new Promise((resolve, reject) => {
@@ -20,7 +23,7 @@ export const downloadTorrent = async (magnet: string, destDir: string, onProgres
         reject(new Error('Torrent metadata timed out. Is your internet blocking P2P/Torrents?'));
     }, 30000); // 30 second timeout for metadata
 
-    client.on('error', (err) => {
+    client.on('error', (err: any) => {
         console.error('WebTorrent Client Error:', err);
         clearTimeout(timeout);
         client.destroy();
@@ -54,11 +57,6 @@ export const downloadTorrent = async (magnet: string, destDir: string, onProgres
         const filePath = path.join(destDir, file.path);
         client.destroy();
         resolve(filePath);
-      });
-
-      client.on('error', (err) => {
-        client.destroy();
-        reject(err);
       });
     });
   });
