@@ -14,7 +14,7 @@ body {
   flex-direction: column;
   height: 100vh;
   background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), 
-              url('https://wow.zelixo.net/assets/background-BN_uR_W7.jpg'); /* Falling back to site bg if possible */
+              url('https://wow.zelixo.net/assets/background-BN_uR_W7.jpg');
   background-size: cover;
   background-position: center;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -28,6 +28,13 @@ body {
   padding: 5px 15px;
   -webkit-app-region: drag;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6em;
+    color: #666;
+    letter-spacing: 2px;
 }
 
 .window-controls {
@@ -48,28 +55,29 @@ body {
 }
 
 .control-btn.close:hover {
-  background: #c42b1c;
+  color: #f44;
 }
 
 header {
-  padding: 40px 20px;
+  padding: 30px 20px;
   text-align: center;
 }
 
 header h1 {
-  font-size: 3em;
+  font-size: 2.8em;
   margin: 0;
-  letter-spacing: 4px;
+  letter-spacing: 6px;
   color: #fff;
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
 .subtitle {
-  color: #e6cc80; /* Gold color from site */
+  color: #e6cc80;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8em;
+  font-size: 0.7em;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 4px;
+  margin-top: 5px;
 }
 
 main {
@@ -77,35 +85,35 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 40px;
-}
-
-.status-box {
-  width: 100%;
-  max-width: 600px;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  padding: 20px;
-  margin-bottom: 30px;
+  padding: 0 50px;
 }
 
 .dir-picker {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 30px;
   width: 100%;
   max-width: 600px;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 15px;
-  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.dir-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
 .dir-label {
-  font-size: 0.7em;
+  font-size: 0.65em;
   color: #666;
   text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    padding: 0;
 }
 
 .dir-path-container {
@@ -115,130 +123,192 @@ main {
 
 .dir-path {
   flex-grow: 1;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 15px;
   border-radius: 4px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8em;
-  color: #9d9d9d;
+  font-size: 0.75em;
+  color: #aaa;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .browse-btn {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
   padding: 0 15px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.8em;
+  font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .browse-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.status-box {
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.status-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8em;
+    color: #e6cc80;
+    margin-bottom: 10px;
+}
+
+.download-info {
+    width: 100%;
 }
 
 .progress-bar {
   width: 100%;
-  height: 4px;
+  height: 2px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 15px;
+  margin-bottom: 8px;
 }
 
 .progress-fill {
   height: 100%;
-  background: #0070dd; /* Rare color blue */
+  background: #0070dd;
   transition: width 0.3s ease;
-  box-shadow: 0 0 10px rgba(0, 112, 221, 0.5);
+  box-shadow: 0 0 8px rgba(0, 112, 221, 0.5);
+}
+
+.progress-details {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6em;
+    color: #666;
+}
+
+.primary-actions {
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 40px;
 }
 
 .action-button {
   width: 100%;
-  max-width: 400px;
-  padding: 18px;
+  padding: 20px;
   font-family: 'Marcellus', serif;
-  font-size: 1.4em;
-  background: #1eff00; /* Uncommon color green - or use something more subtle? */
-  background: linear-gradient(to bottom, #1eff00, #158f00);
+  font-size: 1.5em;
+  background: linear-gradient(to bottom, #1eff00, #126b00);
   border: none;
-  border-radius: 4px;
+  border-radius: 2px;
   color: #000;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s;
   text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .action-button.play {
-  background: linear-gradient(to bottom, #ff8000, #cc6600); /* Legendary orange */
+  background: linear-gradient(to bottom, #ff8000, #b35900);
 }
 
 .action-button:hover:not(:disabled) {
   filter: brightness(1.2);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .action-button:disabled {
-  background: #333;
-  color: #666;
-  cursor: not-allowed;
+  background: #222;
+  color: #444;
+  cursor: wait;
 }
 
-.addon-toggle {
-  margin-top: 40px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 15px 25px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  cursor: pointer;
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 600px;
 }
 
-.addon-toggle:hover {
-  background: rgba(255, 255, 255, 0.06);
+.option-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
 }
 
-.addon-toggle input {
-  display: none;
+.option-card:hover {
+    background: rgba(255, 255, 255, 0.04);
 }
 
-.custom-checkbox {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-  position: relative;
+.option-card input {
+    display: none;
 }
 
-.addon-toggle input:checked + .custom-checkbox {
-  background: #e6cc80;
-  border-color: #e6cc80;
+.checkbox-ui {
+    width: 20px;
+    height: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
 }
 
-.addon-toggle input:checked + .custom-checkbox::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #000;
-  font-size: 12px;
-  font-weight: bold;
+.option-card input:checked + .checkbox-ui {
+    background: #e6cc80;
+    border-color: #e6cc80;
+}
+
+.option-card input:checked + .checkbox-ui::after {
+    content: 'L';
+    display: block;
+    transform: rotate(45deg) scaleX(-1);
+    color: #000;
+    font-weight: bold;
+    text-align: center;
+    line-height: 18px;
+}
+
+.option-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.option-title {
+    font-size: 0.9em;
+    color: #fff;
+}
+
+.option-desc {
+    font-size: 0.6em;
+    color: #666;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.option-card.help {
+    cursor: help;
+}
+
+.option-card.help .icon {
+    font-size: 1.2em;
+    filter: grayscale(1);
+    opacity: 0.5;
 }
 
 footer {
-  padding: 20px;
+  padding: 25px;
   text-align: center;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.6em;
   color: #444;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
 }

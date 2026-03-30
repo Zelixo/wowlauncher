@@ -3,7 +3,14 @@ import * as fs from 'fs-extra';
 import AdmZip from 'adm-zip';
 import * as path from 'path';
 
-export const downloadFile = async (url: string, dest: string, onProgress?: (percent: number) => void) => {
+export interface DownloadProgress {
+  percent: number;
+  downloaded: number;
+  total: number;
+  speed: number; // bytes per second
+}
+
+export const downloadFile = async (url: string, dest: string, onProgress?: (data: DownloadProgress) => void) => {
   const { data, headers } = await axios({
     url,
     method: 'GET',
@@ -12,12 +19,27 @@ export const downloadFile = async (url: string, dest: string, onProgress?: (perc
 
   const totalLength = parseInt(headers['content-length'], 10);
   let downloadedLength = 0;
+  let lastTime = Date.now();
+  let lastDownloaded = 0;
 
   const writer = fs.createWriteStream(dest);
   data.on('data', (chunk: Buffer) => {
     downloadedLength += chunk.length;
-    if (onProgress) {
-      onProgress(Math.round((downloadedLength / totalLength) * 100));
+    const currentTime = Date.now();
+    const timeDiff = (currentTime - lastTime) / 1000;
+    
+    if (timeDiff >= 0.5) { // Update every 500ms
+      const speed = (downloadedLength - lastDownloaded) / timeDiff;
+      if (onProgress) {
+        onProgress({
+          percent: Math.round((downloadedLength / totalLength) * 100),
+          downloaded: downloadedLength,
+          total: totalLength,
+          speed: speed
+        });
+      }
+      lastTime = currentTime;
+      lastDownloaded = downloadedLength;
     }
   });
 

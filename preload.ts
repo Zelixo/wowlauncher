@@ -8,9 +8,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   launchGame: () => ipcRenderer.invoke('launch-game'),
   selectDirectory: () => ipcRenderer.invoke('select-directory'),
   getConfig: () => ipcRenderer.invoke('get-config'),
+  openGameFolder: () => ipcRenderer.invoke('open-game-folder'),
   closeApp: () => ipcRenderer.send('close-app'),
   minimizeApp: () => ipcRenderer.send('minimize-app'),
-  onDownloadProgress: (callback: (percent: number) => void) => {
-    ipcRenderer.on('download-progress', (_event, percent) => callback(percent));
+  onDownloadProgress: (callback: (data: any) => void) => {
+    ipcRenderer.on('download-progress', (_event, data) => callback(data));
+  },
+  onStatusUpdate: (callback: (status: string) => void) => {
+    ipcRenderer.on('status-update', (_event, status) => callback(status));
   },
 });

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import { spawn } from 'child_process';
@@ -40,8 +40,9 @@ const createWindow = (): void => {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    frame: false, // Custom title bar for the modern look
+    frame: false,
     backgroundColor: '#000000',
+    resizable: false, // Keep it consistent
   });
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
@@ -67,7 +68,10 @@ ipcMain.handle('select-directory', async () => {
     properties: ['openDirectory'],
   });
   if (!result.canceled && result.filePaths.length > 0) {
-    currentConfig.gameDir = path.join(result.filePaths[0], 'ZelixoWoW');
+    currentConfig.gameDir = result.filePaths[0]; // Let users pick exactly where they want it
+    if (!currentConfig.gameDir.endsWith('ZelixoWoW') && !await fs.pathExists(path.join(currentConfig.gameDir, 'Wow.exe'))) {
+       currentConfig.gameDir = path.join(currentConfig.gameDir, 'ZelixoWoW');
+    }
     await fs.writeJson(CONFIG_FILE, currentConfig);
     return currentConfig.gameDir;
   }
@@ -94,15 +98,16 @@ ipcMain.handle('install-game', async () => {
   const clientZip = path.join(app.getPath('userData'), 'client.zip');
 
   if (mainWindow) {
-    mainWindow.webContents.send('download-progress', 0);
+    mainWindow.webContents.send('download-progress', { percent: 0, downloaded: 0, total: 0, speed: 0 });
   }
 
-  await downloadFile(CLIENT_URL, clientZip, (percent) => {
+  await downloadFile(CLIENT_URL, clientZip, (data) => {
     if (mainWindow) {
-      mainWindow.webContents.send('download-progress', percent);
+      mainWindow.webContents.send('download-progress', data);
     }
   });
 
+  if (mainWindow) mainWindow.webContents.send('status-update', 'Extracting files (This may take a moment)...');
   await extractZip(clientZip, gameDir);
   await fs.remove(clientZip);
   
@@ -141,11 +146,29 @@ ipcMain.handle('launch-game', async () => {
   await updateRealmlist(currentConfig.gameDir, TARGET_REALMLIST);
   
   const wowExe = path.join(currentConfig.gameDir, 'Wow.exe');
-  spawn(wowExe, [], {
-    detached: true,
-    stdio: 'ignore',
-    cwd: currentConfig.gameDir,
-  }).unref();
+  
+  if (process.platform === 'linux') {
+     // Check if user has wine installed
+     try {
+       spawn('wine', ['--version']);
+       spawn('wine', [wowExe], { detached: true, stdio: 'ignore', cwd: currentConfig.gameDir }).unref();
+     } catch (e) {
+       // Just try launching normally, maybe they have binfmt_misc
+       spawn(wowExe, [], { detached: true, stdio: 'ignore', cwd: currentConfig.gameDir }).unref();
+     }
+  } else {
+    spawn(wowExe, [], {
+      detached: true,
+      stdio: 'ignore',
+      cwd: currentConfig.gameDir,
+    }).unref();
+  }
+});
+
+ipcMain.handle('open-game-folder', async () => {
+  if (await fs.pathExists(currentConfig.gameDir)) {
+    shell.openPath(currentConfig.gameDir);
+  }
 });
 
 ipcMain.on('close-app', () => app.quit());
