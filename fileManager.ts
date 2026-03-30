@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra';
 import AdmZip from 'adm-zip';
 import * as path from 'path';
+const WebTorrent = require('webtorrent');
 
 export interface DownloadProgress {
   percent: number;
@@ -10,17 +11,8 @@ export interface DownloadProgress {
 }
 
 export const downloadTorrent = async (magnet: string, destDir: string, onProgress?: (data: DownloadProgress) => void): Promise<string> => {
-  console.log('Starting WebTorrent client...');
-  // Dynamic import to handle ESM module in CJS/Webpack environment
-  const WebTorrentModule = await import('webtorrent');
-  // Handle both default export and namespace export depending on how Webpack bundled it
-  const WebTorrent = (WebTorrentModule as any).default || WebTorrentModule;
-  
-  if (typeof WebTorrent !== 'function') {
-    throw new Error('Could not find WebTorrent constructor in module.');
-  }
-
   const client = new WebTorrent();
+  console.log('Starting WebTorrent 1.x client...');
 
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {

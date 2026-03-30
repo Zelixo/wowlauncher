@@ -81,10 +81,10 @@ const createWindow = (): void => {
       nodeIntegration: false,
     },
     frame: false,
+    thickFrame: false,
     autoHideMenuBar: true,
     backgroundColor: '#000000',
     resizable: false,
-    useContentSize: true,
     hasShadow: false,
     show: false,
   });
