@@ -36,8 +36,8 @@ const loadConfig = async () => {
 const createWindow = (): void => {
   console.log('Creating window...');
   mainWindow = new BrowserWindow({
-    height: 800,
-    width: 900,
+    height: 820,
+    width: 1000,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       contextIsolation: true,
@@ -45,8 +45,8 @@ const createWindow = (): void => {
     },
     frame: false,
     autoHideMenuBar: true,
-    backgroundColor: '#1a1a1a',
-    resizable: true,
+    backgroundColor: '#050505',
+    resizable: false,
   });
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);

@@ -115,7 +115,7 @@ main {
 
 .dir-picker {
   width: 100%;
-  max-width: 650px;
+  max-width: 880px;
   margin-bottom: 25px;
   background: var(--glass-bg);
   padding: 20px;
@@ -193,7 +193,7 @@ main {
 
 .status-box {
   width: 100%;
-  max-width: 650px;
+  max-width: 880px;
   text-align: center;
   margin-bottom: 35px;
 }
@@ -242,7 +242,7 @@ main {
 
 .primary-actions {
     width: 100%;
-    max-width: 500px;
+    max-width: 700px;
     margin-bottom: 45px;
 }
 
@@ -297,7 +297,7 @@ main {
     grid-template-columns: 1fr 1fr;
     gap: 25px;
     width: 100%;
-    max-width: 650px;
+    max-width: 880px;
 }
 
 .option-card {
