@@ -2,16 +2,16 @@
 
 A custom, high-performance desktop launcher for the **Realm of Ikhan** World of Warcraft private server (Wrath of the Lich King 3.3.5a).
 
-![Launcher Preview](logo.png)
+![Launcher Icon](icon.png)
 
 ## Features
 
--   **One-Click Installation:** Automatically downloads and extracts the full 3.3.5a game client.
+-   **High-Speed P2P Summoning:** Built-in WebTorrent engine for fast, resilient game client downloads.
 -   **Smart Detection:** Automatically finds Steam libraries and common game directories for a seamless setup.
 -   **MultiBot Integration:** Easily toggle the MultiBot addon to recruit automated party members for your adventures.
--   **Dynamic Realmlist:** Automatically ensures your `realmlist.wtf` is correctly configured for the Ikhan realm before launching.
+-   **Dynamic Realmlist:** Automatically ensures your `realmlist.wtf` is correctly configured for the Ikhan realm before every launch.
 -   **Cross-Platform Support:** Native support for Windows and Linux (via Wine).
--   **Modern UI:** A clean, immersive interface designed with React and custom CSS.
+-   **Modern UI:** A clean, immersive "Frozen Throne" interface designed with React and custom CSS.
 
 ## Getting Started
 
@@ -23,9 +23,9 @@ A custom, high-performance desktop launcher for the **Realm of Ikhan** World of 
 ### Usage
 
 1.  Launch the application.
-2.  Select your desired **Game Stronghold** (installation directory).
-3.  Click **Begin the Journey** to download the game client if you don't have it.
-4.  Once ready, click **Enter the Fray** to launch World of Warcraft.
+2.  Select your desired **Installation Directory**.
+3.  Click **Install Game** to download the game client via P2P.
+4.  Once ready, click **Play Now** to launch World of Warcraft.
 
 ## Building from Source
 
@@ -42,12 +42,7 @@ If you want to build the launcher yourself:
     npm install
     ```
 
-3.  **Run in development mode:**
-    ```bash
-    npm start
-    ```
-
-4.  **Create a distributable package:**
+3.  **Create a branded installer:**
     ```bash
     npm run make
     ```

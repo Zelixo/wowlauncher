@@ -94,15 +94,11 @@ const createWindow = (): void => {
   });
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  
-  console.log('Window loaded.');
 };
 
 app.on('ready', async () => {
-  console.log('App ready. Loading config...');
   try {
     await loadConfig();
-    console.log('Config loaded:', currentConfig);
     createWindow();
   } catch (error) {
     console.error('Error during startup:', error);

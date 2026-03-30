@@ -27,8 +27,6 @@ export const downloadTorrent = async (torrentId: string, destDir: string, onProg
     tracker: true,
     lsd: true,
   });
-  
-  console.log('Starting Aggressive WebTorrent 1.x client...');
 
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
@@ -39,7 +37,6 @@ export const downloadTorrent = async (torrentId: string, destDir: string, onProg
     }, 60000); // 1 minute to find peers/metadata
 
     client.on('error', (err: any) => {
-        console.error('WebTorrent Client Global Error:', err);
         client.destroy();
         reject(err);
     });
@@ -49,22 +46,12 @@ export const downloadTorrent = async (torrentId: string, destDir: string, onProg
         announce: EXTRA_TRACKERS 
     }, (torrent: any) => {
       clearTimeout(timeout);
-      console.log('Successfully connected to swarm.');
-      console.log('Files in torrent:', torrent.files.map((f: any) => f.name));
       
       const file = torrent.files.find((f: any) => f.name.endsWith('.zip'));
       if (!file) {
         client.destroy();
         return reject(new Error('No zip file found in torrent.'));
       }
-
-      const statusInterval = setInterval(() => {
-        const progress = Math.round(torrent.progress * 100);
-        const peers = torrent.numPeers;
-        const speed = (torrent.downloadSpeed / 1024 / 1024).toFixed(2);
-        
-        console.log(`[Torrent] Progress: ${progress}% | Peers: ${peers} | Speed: ${speed} MB/s`);
-      }, 3000);
 
       torrent.on('download', () => {
         if (onProgress) {
@@ -78,8 +65,6 @@ export const downloadTorrent = async (torrentId: string, destDir: string, onProg
       });
 
       torrent.on('done', () => {
-        console.log('Torrent download complete!');
-        clearInterval(statusInterval);
         const filePath = path.join(destDir, file.path);
         // Important: We don't destroy immediately to let others leech if needed for a moment
         setTimeout(() => client.destroy(), 5000); 
@@ -87,8 +72,6 @@ export const downloadTorrent = async (torrentId: string, destDir: string, onProg
       });
 
       torrent.on('error', (err: any) => {
-        console.error('Torrent-specific error:', err);
-        clearInterval(statusInterval);
         client.destroy();
         reject(err);
       });
