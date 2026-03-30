@@ -36,8 +36,8 @@ const loadConfig = async () => {
 const createWindow = (): void => {
   console.log('Creating window...');
   mainWindow = new BrowserWindow({
-    height: 820,
-    width: 900,
+    height: 850,
+    width: 700,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       contextIsolation: true,
