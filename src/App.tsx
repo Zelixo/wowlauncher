@@ -106,8 +106,8 @@ const App: React.FC = () => {
 
   return (
     <div className="app-container">
-      <div className="title-bar">
-        <div className="brand">REALM OF IKHAN</div>
+      <div className="title-bar" data-tauri-drag-region>
+        <div className="brand" data-tauri-drag-region>REALM OF IKHAN</div>
         <div className="window-controls">
           <button className="control-btn" onClick={() => getCurrentWindow().minimize()}>_</button>
           <button className="control-btn close" onClick={() => getCurrentWindow().close()}>×</button>
@@ -141,7 +141,7 @@ const App: React.FC = () => {
           {downloadData && installing && (
             <div className="download-info">
               <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `\${downloadData.percent}%` }}></div>
+                <div className="progress-fill" style={{ width: `${downloadData.percent}%` }}></div>
               </div>
               <div className="progress-details">
                 <span>{formatBytes(downloadData.downloaded)} / {formatBytes(downloadData.total)}</span>

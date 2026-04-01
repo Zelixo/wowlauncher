@@ -1,6 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "wowlauncher",
+  "productName": "Ikhan Launcher",
   "version": "0.1.0",
   "identifier": "net.zelixo.wowlauncher",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Realm of Ikhan",
+        "title": "Ikhan Launcher",
         "width": 700,
         "height": 850,
         "resizable": false,
@@ -24,9 +24,12 @@
       "csp": null
     }
   },
-  "bundle": {
+    "bundle": {
     "active": true,
     "targets": "all",
+    "externalBin": [
+      "bin/aria2c"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

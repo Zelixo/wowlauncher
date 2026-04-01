@@ -93,6 +93,7 @@ dependencies = [
  "dirs",
  "log",
  "open",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",
